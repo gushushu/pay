@@ -11,7 +11,7 @@
     <div>
 
 
-        <form method="get" onsubmit="return false" id="getPay" action="/pay/onlineBank">
+        <form method="get" onsubmit="return false" id="getPay" action="/orderRequest">
             <table>
                 <tr>
                     <td>银行类型</td>
@@ -29,6 +29,32 @@
 
 
 
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>前台回掉</td>
+                    <td><input type="text"  name="frontUrl"></td>
+                </tr>
+                <tr>
+                    <td>商户号</td>
+                    <td><input type="text"  name="custId"></td>
+                </tr>
+                <tr>
+                    <td>商户密钥</td>
+                    <td><input type="text"  name="custKey"></td>
+                </tr>
+                <tr>
+                    <td>后台回掉</td>
+                    <td><input type="text"  name="backUrl"></td>
+                </tr>
+                <tr>
+                    <td>类型</td>
+                    <td>
+                        <select name="type">
+                            <option value="chuanHuaNetBank">chuanHuaNetBank</option>
+                            <option value="TFBNetBank">TFBNetBank</option>
+                        </select>
                     </td>
                 </tr>
                 <tr>
@@ -56,13 +82,34 @@
     </div>
 
     <script src="https://cdn.bootcss.com/jquery/1.9.1/jquery.min.js"></script>
+    <script src="http://cdn.bootcss.com/blueimp-md5/1.1.0/js/md5.min.js"></script>
+
     <script>
 
 
 
-        var getPayParams = function(call){
-            var getPayParams = $("#getPay").serialize();
-            $.get("/pay/onlineBank?"+getPayParams,call)
+        var getPayParams = function(varcall){
+            var params = decodeURIComponent($("#getPay").serialize());
+
+            var srcsign =  params.split("&").sort().toString().replace(/,/g,'&');
+
+
+
+            var sign = md5(srcsign);
+            var formData = params+"&sign="+sign;
+
+            formData = formData.replace(/custKey=.+?&/,"&");
+
+            console.log(srcsign)
+            console.log(formData)
+            $.ajax({
+                url:"/order/create",
+                type:"post",
+                data:formData,
+                success:function(res){
+                    $(document.body).append("<p>"+res.data+"</p>")
+                }
+            })
         }
 
         $("#orderId").val(Math.ceil(Math.random() * 0xffffffff));
@@ -83,7 +130,7 @@
         })
 
         $("#getPay").find("[type=submit]").click(function(){
-            getPayParams(function(){
+            getPayParams(function(res){
                 var $toPay = $("#toPay").html("");
 
                 for (var name in res.data){
