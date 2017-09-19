@@ -1,0 +1,18 @@
+server:
+ port: 80
+
+sysConfig:
+ backUrlPrefix: http://spay.viphk.ngrok.org/
+
+
+spring:
+ datasource:
+  type: org.apache.commons.dbcp2.BasicDataSource
+  url: jdbc:mysql://devAddress:3306/payorder?useUnicode=true&characterEncoding=UTF-8
+  driver-class-name: com.mysql.jdbc.Driver
+  username: root
+  password: mysqlpasswd
+  jpa:
+    hibernate:
+      ddl-auto: false
+      show-sql: false
